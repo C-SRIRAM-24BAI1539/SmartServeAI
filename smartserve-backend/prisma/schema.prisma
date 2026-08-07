@@ -1,13 +1,119 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+
+  customerProfile CustomerProfile?
+  providerProfile ProviderProfile?
+}
+
+model CustomerProfile {
+  id            String  @id @default(uuid())
+  userId        String  @unique
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address       String?
+  preferredCity String?
+
+  bookings Booking[]
+  reviews  Review[]
+}
+
+model ProviderProfile {
+  id              String  @id @default(uuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experienceYears Int     @default(0)
+  ratingAvg       Float   @default(0.0)
+  isAvailable     Boolean @default(true)
+
+  services ServiceOffered[]
+  bookings Booking[]
+  reviews  Review[]
+}
+
+model ServiceCategory {
+  id           String  @id @default(uuid())
+  categoryName String  @unique
+  description  String?
+
+  services             ServiceOffered[]
+  knowledgeBaseEntries KnowledgeBaseEntry[]
+}
+
+model ServiceOffered {
+  id         String @id @default(uuid())
+  providerId String
+  categoryId String
+  basePrice  Float
+
+  provider ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  category ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+}
+
+model KnowledgeBaseEntry {
+  id              String @id @default(uuid())
+  categoryId      String
+  symptomKeywords String
+
+  category ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id                  String        @id @default(uuid())
+  customerId          String
+  providerId          String?
+  serviceId           String?
+  rawIssueDescription String
+  aiGeneratedJobDesc  String?
+  aiEstimatedPriceMin Float?
+  aiEstimatedPriceMax Float?
+  bookingDate         DateTime      @default(now())
+  scheduledTime       String?
+  status              BookingStatus @default(PENDING)
+
+  customer CustomerProfile  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  provider ProviderProfile? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  service  ServiceOffered?  @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  review   Review?
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  bookingId    String   @unique
+  customerId   String
+  providerId   String
+  rating       Int
+  feedbackText String?
+  createdAt    DateTime @default(now())
+
+  booking  Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  provider ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
 }
