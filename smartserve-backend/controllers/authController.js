@@ -1,16 +1,17 @@
-const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg');
-const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = require('../lib/prisma');
+const { emailPattern, requireFields } = require('../utils/validation');
 
 const register = async (req, res) => {
   try {
+    if (!process.env.JWT_SECRET) return res.status(500).json({ error: 'Server authentication is not configured' });
     const { name, email, password, role, phone, address, preferredCity, experienceYears } = req.body;
+    const missing = requireFields(req.body, ['name', 'email', 'password']);
+    if (missing || !emailPattern.test(email) || password.length < 8) {
+      return res.status(400).json({ error: 'Name, a valid email, and a password of at least 8 characters are required' });
+    }
+    if (role && !['CUSTOMER', 'PROVIDER'].includes(role)) return res.status(400).json({ error: 'Invalid registration role' });
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -38,7 +39,7 @@ const register = async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
-      process.env.JWT_SECRET || 'fallback_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
@@ -61,7 +62,9 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    if (!process.env.JWT_SECRET) return res.status(500).json({ error: 'Server authentication is not configured' });
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
     const user = await prisma.user.findUnique({
       where: { email },
@@ -79,7 +82,7 @@ const login = async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
-      process.env.JWT_SECRET || 'fallback_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 

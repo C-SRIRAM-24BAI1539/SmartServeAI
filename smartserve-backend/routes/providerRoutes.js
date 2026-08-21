@@ -1,0 +1,1 @@
+const router = require('express').Router(); const c = require('../controllers/providerController'); const { authenticate, authorize } = require('../middleware/auth'); router.get('/', c.list); router.get('/me/dashboard', authenticate, authorize('PROVIDER'), c.mine); router.get('/:id', c.getOne); module.exports = router;

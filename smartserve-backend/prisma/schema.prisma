@@ -15,6 +15,7 @@ enum Role {
 enum BookingStatus {
   PENDING
   ACCEPTED
+  IN_PROGRESS
   REJECTED
   COMPLETED
   CANCELLED
@@ -28,6 +29,7 @@ model User {
   phone        String?
   role         Role     @default(CUSTOMER)
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
 
   customerProfile CustomerProfile?
   providerProfile ProviderProfile?
@@ -39,6 +41,8 @@ model CustomerProfile {
   user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   address       String?
   preferredCity String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
   bookings Booking[]
   reviews  Review[]
@@ -51,6 +55,10 @@ model ProviderProfile {
   experienceYears Int     @default(0)
   ratingAvg       Float   @default(0.0)
   isAvailable     Boolean @default(true)
+  bio             String?
+  serviceCity     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
 
   services ServiceOffered[]
   bookings Booking[]
@@ -61,20 +69,27 @@ model ServiceCategory {
   id           String  @id @default(uuid())
   categoryName String  @unique
   description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
 
   services             ServiceOffered[]
   knowledgeBaseEntries KnowledgeBaseEntry[]
 }
 
 model ServiceOffered {
-  id         String @id @default(uuid())
-  providerId String
-  categoryId String
-  basePrice  Float
+  id          String   @id @default(uuid())
+  providerId  String
+  categoryId  String
+  serviceName String
+  description String?
+  basePrice   Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
   provider ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
   category ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   bookings Booking[]
+
 }
 
 model KnowledgeBaseEntry {
@@ -97,6 +112,8 @@ model Booking {
   bookingDate         DateTime      @default(now())
   scheduledTime       String?
   status              BookingStatus @default(PENDING)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @default(now()) @updatedAt
 
   customer CustomerProfile  @relation(fields: [customerId], references: [id], onDelete: Cascade)
   provider ProviderProfile? @relation(fields: [providerId], references: [id], onDelete: SetNull)
