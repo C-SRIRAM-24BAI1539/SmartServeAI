@@ -1,0 +1,9 @@
+import { motion } from 'framer-motion';
+import { api } from '../../api';
+import { Chip } from '../ui/Chip';
+import { Stepper } from '../ui/Stepper';
+import { Button } from '../ui/Button';
+import { Empty } from '../ui/Empty';
+import { status } from '../../utils/constants';
+
+export function Bookings({ data, customer, admin, token, onCancel, reload, notify }) { const update = async (id, s) => { try { await api(`/bookings/${id}/status`, { token, method: 'PATCH', body: { status: s } }); notify?.({ type: 'success', message: 'Booking updated' }); reload?.(); } catch (e) { notify?.({ type: 'error', message: e.message }); } }; if (!data.length) return <Empty text="No bookings found yet." />; return <div className="bookings">{data.map(b => <motion.article layout key={b.id}><div className="booking-info"><div className="booking-head"><div><Chip name={b.service?.category?.categoryName || 'Service'} /><h3>{b.service?.serviceName || 'Service booking'}</h3></div><span className={status(b.status)}>{b.status.replace('_', ' ')}</span></div><p>{b.rawIssueDescription}</p><small>{new Date(b.bookingDate).toLocaleDateString()} {b.scheduledTime && `at ${b.scheduledTime}`} · {customer ? b.provider?.user?.name : b.customer?.user?.name}</small><Stepper current={b.status} /></div><div className="actions">{customer && ['PENDING', 'ACCEPTED'].includes(b.status) && <button className="secondary" onClick={() => onCancel(b.id)}>Cancel</button>}{admin && b.status === 'PENDING' && <><Button onClick={() => update(b.id, 'ACCEPTED')}>Accept</Button><button className="secondary" onClick={() => update(b.id, 'REJECTED')}>Reject</button></>}{admin && b.status === 'ACCEPTED' && <Button onClick={() => update(b.id, 'IN_PROGRESS')}>Start job</Button>}{admin && b.status === 'IN_PROGRESS' && <Button onClick={() => update(b.id, 'COMPLETED')}>Complete</Button>}</div></motion.article>)}</div>; }

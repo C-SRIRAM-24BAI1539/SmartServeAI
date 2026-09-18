@@ -158,3 +158,5 @@ Booking state is controlled by the server: `PENDING → ACCEPTED → IN_PROGRESS
 ## RAG implementation boundary
 
 The schema already reserves `KnowledgeBaseEntry`, `Booking.aiGeneratedJobDesc`, `Booking.aiEstimatedPriceMin`, and `Booking.aiEstimatedPriceMax`. Completing RAG should add a server-side retrieval/enrichment service, validate generated output, persist the result on the booking, expose it from an authenticated booking endpoint, and then replace the frontend’s presentational AI estimate with returned data. Keep model/API keys server-side in environment variables; never add them to `VITE_*` variables.
+
+npx prisma studio

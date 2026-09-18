@@ -1,0 +1,13 @@
+import { useState, useEffect } from 'react';
+import { api } from '../../api';
+import { Hero } from './Hero';
+import { Section } from '../ui/Section';
+import { Bookings } from './Bookings';
+import { BookingForm } from './BookingForm';
+import { Chip } from '../ui/Chip';
+import { ProviderCards } from './ProviderCards';
+import { Empty } from '../ui/Empty';
+import { Reviews } from './Reviews';
+import { Profile } from './Profile';
+
+export function Customer({ page, token, notify, go }) { const [categories, setCategories] = useState([]), [services, setServices] = useState([]), [bookings, setBookings] = useState([]), [profile, setProfile] = useState(null), [selected, setSelected] = useState(null); const load = async () => { try { const [a, b, c, d] = await Promise.all([api('/categories'), api('/services?available=true'), api('/bookings', { token }), api('/profile/me', { token })]); setCategories(a.categories); setServices(b.services); setBookings(c.bookings); setProfile(d); } catch (e) { notify({ type: 'error', message: e.message }); } }; useEffect(() => { load(); }, []); const cancel = async id => { try { await api(`/bookings/${id}/cancel`, { token, method: 'PATCH' }); notify({ type: 'success', message: 'Booking cancelled' }); load(); } catch (e) { notify({ type: 'error', message: e.message }); } }; if (page === 'dashboard') return <><Hero services={services} book={setSelected} browse={() => go('discover')} /><Section label="Your timeline" title="Recent bookings"><Bookings data={bookings.slice(0, 3)} customer onCancel={cancel} /></Section>{selected && <BookingForm service={selected} token={token} close={() => setSelected(null)} done={() => { setSelected(null); notify({ type: 'success', message: 'Booking request sent' }); load(); }} />}</>; if (page === 'discover') return <><Section label="Find help" title="Local expertise, ready when you are." /><div className="chips">{categories.map(c => <Chip key={c.id} name={c.categoryName} />)}</div><ProviderCards services={services} book={setSelected} />{!services.length && <Empty text="No available services yet. Ask a provider to publish their service." />}{selected && <BookingForm service={selected} token={token} close={() => setSelected(null)} done={() => { setSelected(null); notify({ type: 'success', message: 'Booking request sent' }); load(); }} />}</>; if (page === 'bookings') return <><Section label="Your timeline" title="Every job, clearly tracked." /><Bookings data={bookings} customer onCancel={cancel} /><Reviews bookings={bookings} token={token} notify={notify} reload={load} /></>; return <Profile profile={profile} token={token} notify={notify} reload={load} />; }
