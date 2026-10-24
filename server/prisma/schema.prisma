@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+provider = "postgresql"
+}
+
+enum UserRole {
+CUSTOMER
+PROVIDER
+ADMIN
+}
+
+enum BookingStatus {
+PENDING
+ACCEPTED
+REJECTED
+IN_PROGRESS
+COMPLETED
+CANCELLED
+}
+
+enum ReviewStatus {
+VISIBLE
+HIDDEN
+}
+
+model User {
+id           String   @id @default(cuid())
+name         String
+email        String   @unique
+passwordHash String
+phone        String?
+role         UserRole @default(CUSTOMER)
+isActive     Boolean  @default(true)
+createdAt    DateTime @default(now()) @db.Timestamptz(3)
+updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+
+providerProfile ProviderProfile?
+customerBookings Booking[] @relation("CustomerBookings")
+reviews          Review[]
+
+@@index([role])
+@@map("users")
+}
+
+model ProviderProfile {
+id                String   @id @default(cuid())
+userId            String   @unique
+businessName      String
+description       String?
+serviceArea       String?
+isVerified        Boolean  @default(false)
+isAvailable       Boolean  @default(true)
+averageRating     Decimal  @default(0) @db.Decimal(3, 2)
+totalReviews      Int      @default(0)
+createdAt         DateTime @default(now()) @db.Timestamptz(3)
+updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+services Service[]
+bookings Booking[] @relation("ProviderBookings")
+reviews  Review[]
+
+@@map("provider_profiles")
+}
+
+model ServiceCategory {
+id          String   @id @default(cuid())
+name        String   @unique
+slug        String   @unique
+description String?
+icon        String?
+isActive    Boolean  @default(true)
+createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+services Service[]
+
+@@map("service_categories")
+}
+
+model Service {
+id          String   @id @default(cuid())
+providerId  String
+categoryId  String
+name        String
+description String?
+basePrice   Decimal? @db.Decimal(10, 2)
+isActive    Boolean  @default(true)
+createdAt   DateTime @default(now()) @db.Timestamptz(3)
+updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+provider  ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+category  ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+bookings  Booking[]
+
+@@index([providerId, isActive])
+@@index([categoryId, isActive])
+@@map("services")
+}
+
+model Booking {
+id               String        @id @default(cuid())
+customerId       String
+providerId       String?
+serviceId        String?
+description      String
+address          String
+scheduledAt      DateTime?     @db.Timestamptz(3)
+status           BookingStatus @default(PENDING)
+estimatedPrice   Decimal?      @db.Decimal(10, 2)
+finalPrice       Decimal?      @db.Decimal(10, 2)
+createdAt        DateTime      @default(now()) @db.Timestamptz(3)
+updatedAt        DateTime      @updatedAt @db.Timestamptz(3)
+
+customer User            @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: Restrict)
+provider ProviderProfile? @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: SetNull)
+service  Service?         @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+review   Review?
+
+@@index([customerId, createdAt])
+@@index([providerId, status])
+@@index([status, scheduledAt])
+@@map("bookings")
+}
+
+model Review {
+id         String       @id @default(cuid())
+bookingId  String       @unique
+customerId String
+providerId String
+rating     Int
+comment    String?
+status     ReviewStatus @default(VISIBLE)
+createdAt  DateTime     @default(now()) @db.Timestamptz(3)
+
+booking  Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+customer User            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+provider ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+@@index([providerId, status, createdAt])
+@@map("reviews")
+}

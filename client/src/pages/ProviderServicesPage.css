@@ -1,0 +1,182 @@
+
+.provider-service-page {
+  min-height: 100vh;
+  background: #f6f8fc;
+  color: #182230;
+  font-family: inherit;
+}
+
+.provider-service-header {
+  height: 76px;
+  padding: 0 7%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid #e8edf4;
+}
+
+.provider-service-brand,
+.provider-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #25344a;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.provider-service-brand span {
+  color: #23866d;
+  margin-left: -8px;
+}
+
+.provider-back-link {
+  font-size: 14px;
+  color: #536174;
+}
+
+.provider-service-content {
+  width: min(680px, 92%);
+  margin: 52px auto;
+}
+
+.provider-service-heading {
+  margin-bottom: 28px;
+}
+
+.provider-service-kicker {
+  color: #23866d;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.provider-service-heading h1 {
+  margin: 10px 0;
+  font-size: clamp(30px, 5vw, 42px);
+  letter-spacing: -1.3px;
+}
+
+.provider-service-heading p {
+  color: #667085;
+  line-height: 1.7;
+}
+
+.provider-service-form,
+.provider-service-panel {
+  padding: 32px;
+  background: #fff;
+  border: 1px solid #e5eaf1;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px #1822300a;
+}
+
+.provider-form-icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  color: #23866d;
+  background: #e9f7f1;
+  border-radius: 15px;
+  margin-bottom: 25px;
+}
+
+.provider-service-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 21px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.provider-service-form input,
+.provider-service-form select,
+.provider-service-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid #d9e0e9;
+  border-radius: 9px;
+  background: #fff;
+  color: #182230;
+  font: inherit;
+  font-weight: 400;
+  outline: none;
+}
+
+.provider-service-form input:focus,
+.provider-service-form select:focus,
+.provider-service-form textarea:focus {
+  border-color: #23866d;
+  box-shadow: 0 0 0 3px #23866d1a;
+}
+
+.provider-service-form textarea {
+  resize: vertical;
+}
+
+.provider-service-form > button {
+  width: 100%;
+  min-height: 47px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 9px;
+  background: #23866d;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.provider-service-form > button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.provider-service-form > .provider-secondary-button {
+  margin-top: 10px;
+  background: #edf7f3;
+  color: #20765f;
+}
+
+.provider-form-error,
+.provider-form-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.provider-form-error {
+  color: #b42318;
+  background: #fef3f2;
+}
+
+.provider-form-success {
+  color: #18794e;
+  background: #ecfdf3;
+}
+
+@media (max-width: 520px) {
+  .provider-service-header {
+    padding: 0 5%;
+  }
+
+  .provider-service-form,
+  .provider-service-panel {
+    padding: 22px;
+  }
+
+  .provider-service-content {
+    margin: 35px auto;
+  }
+}
