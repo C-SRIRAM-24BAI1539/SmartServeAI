@@ -1,2 +1,0 @@
-import { motion } from 'framer-motion';
-export function Stepper({ current }) { const steps = ['PENDING', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED'], failed = ['REJECTED', 'CANCELLED'].includes(current), point = Math.max(0, steps.indexOf(current)); return <div className={`stepper ${failed ? 'failed' : ''}`}><motion.i animate={{ width: `${point / 3 * 100}%` }} />{steps.map((x, i) => <span className={i <= point && !failed ? 'done' : ''} key={x}><b>{i < point ? '✓' : i + 1}</b><small>{x.replace('_', ' ')}</small></span>)}{failed && <em>{current.toLowerCase()}</em>}</div>; }

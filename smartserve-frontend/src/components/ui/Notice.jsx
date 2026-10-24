@@ -1,2 +1,0 @@
-import { motion } from 'framer-motion';
-export function Notice({ notice }) { return notice && <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className={`notice ${notice.type}`}>{notice.message}</motion.div>; }

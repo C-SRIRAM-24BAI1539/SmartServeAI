@@ -1,8 +1,0 @@
-import { useState, useEffect } from 'react';
-import { api } from '../../api';
-import { Bento } from './Bento';
-import { Categories } from './Categories';
-import { Bookings } from './Bookings';
-import { Section } from '../ui/Section';
-
-export function Admin({ page, token, notify }) { const [metrics, setMetrics] = useState(null), [categories, setCategories] = useState([]), [users, setUsers] = useState([]), [bookings, setBookings] = useState([]); const load = async () => { try { const [a, b, c, d] = await Promise.all([api('/admin/dashboard', { token }), api('/categories'), api('/admin/users', { token }), api('/bookings', { token })]); setMetrics(a.metrics); setCategories(b.categories); setUsers(c.users); setBookings(d.bookings); } catch (e) { notify({ type: 'error', message: e.message }); } }; useEffect(() => { load(); }, []); if (page === 'dashboard') return <Bento metrics={metrics} bookings={bookings} />; if (page === 'categories') return <Categories data={categories} token={token} reload={load} notify={notify} />; if (page === 'bookings') return <Bookings data={bookings} admin token={token} reload={load} notify={notify} />; return <><Section label="Platform directory" title="People on SmartServe." /><div className="table"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead><tbody>{users.map(u => <tr key={u.id}><td>{u.name}</td><td>{u.email}</td><td className="blue">{u.role}</td><td>{new Date(u.createdAt).toLocaleDateString()}</td></tr>)}</tbody></table></div></>; }

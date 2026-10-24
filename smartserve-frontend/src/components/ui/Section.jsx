@@ -1,1 +1,0 @@
-export function Section({ label, title, children }) { return <section className="section"><div className="section-title"><div><span className="eyebrow">{label}</span><h2>{title}</h2></div></div>{children}</section>; }

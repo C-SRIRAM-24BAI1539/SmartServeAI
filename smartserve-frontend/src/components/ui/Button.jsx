@@ -1,2 +1,0 @@
-import { motion } from 'framer-motion';
-export function Button({ children, className = '', ...props }) { return <motion.button whileHover={{ y: -1 }} whileTap={{ scale: .97 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} className={className} {...props}>{children}</motion.button>; }

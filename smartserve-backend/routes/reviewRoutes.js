@@ -1,1 +1,0 @@
-const router = require('express').Router(); const c = require('../controllers/reviewController'); const { authenticate, authorize } = require('../middleware/auth'); router.get('/provider/:providerId', c.forProvider); router.post('/', authenticate, authorize('CUSTOMER'), c.create); module.exports = router;

@@ -1,6 +1,0 @@
-import { motion } from 'framer-motion';
-import { Chip } from '../ui/Chip';
-import { Button } from '../ui/Button';
-import { colors, fade } from '../../utils/constants';
-
-export function ProviderCards({ services, book }) { return <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: .06 } } }} className="cards">{services.map(s => <motion.article variants={fade} whileHover={{ y: -5 }} className="card provider-card" style={{ '--category': colors[s.category?.categoryName?.toLowerCase()] || '#3B5BA5' }} key={s.id}><div className="card-head"><Chip name={s.category.categoryName} /><strong>from ₹{s.basePrice}</strong></div><h3>{s.serviceName}</h3><p>{s.description || 'A carefully listed local service for your home.'}</p><div className="reasons"><span>★ {s.provider.ratingAvg.toFixed(1)} rating</span><span>{s.provider.serviceCity || 'Local'} area</span><span>Available now</span></div><footer><b>{s.provider.user.name}</b><Button onClick={() => book(s)}>Book →</Button></footer></motion.article>)}</motion.div>; }
