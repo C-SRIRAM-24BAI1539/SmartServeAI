@@ -1,0 +1,6 @@
+const prisma = require('../lib/prisma');
+const include = { user: { select: { id: true, name: true, phone: true } }, services: { include: { category: true } } };
+async function list(req, res) { const where = { ...(req.query.city && { serviceCity: { equals: req.query.city, mode: 'insensitive' } }), ...(req.query.available === 'true' && { isAvailable: true }) }; res.json({ providers: await prisma.providerProfile.findMany({ where, include, orderBy: [{ ratingAvg: 'desc' }, { experienceYears: 'desc' }] }) }); }
+async function getOne(req, res) { const provider = await prisma.providerProfile.findUnique({ where: { id: req.params.id }, include }); if (!provider) return res.status(404).json({ error: 'Provider not found' }); res.json({ provider }); }
+async function mine(req, res) { const provider = await prisma.providerProfile.findUnique({ where: { userId: req.user.userId }, include: { ...include, bookings: { include: { customer: { include: { user: { select: { name: true, phone: true } } } }, service: true }, orderBy: { createdAt: 'desc' } } } }); if (!provider) return res.status(404).json({ error: 'Provider profile not found' }); res.json({ provider }); }
+module.exports = { list, getOne, mine };

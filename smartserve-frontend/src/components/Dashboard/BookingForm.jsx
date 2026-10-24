@@ -1,0 +1,8 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { api } from '../../api';
+import { Notice } from '../ui/Notice';
+import { Button } from '../ui/Button';
+import { date } from '../../utils/constants';
+
+export function BookingForm({ service, token, close, done }) { const [form, setForm] = useState({ rawIssueDescription: '', bookingDate: date, scheduledTime: '' }), [error, setError] = useState(''); const submit = async e => { e.preventDefault(); try { await api('/bookings', { token, method: 'POST', body: { ...form, serviceId: service.id } }); done(); } catch (e) { setError(e.message); } }; return <div className="modal-wrap"><motion.div initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }} className="modal"><button className="close" onClick={close}>×</button><span className="eyebrow">Booking request</span><h2>Book {service.serviceName}</h2><p>With {service.provider.user.name} · from ₹{service.basePrice}</p><Notice notice={error && { type: 'error', message: error }} /><form onSubmit={submit}><label>Describe the problem<textarea required minLength="10" value={form.rawIssueDescription} onChange={e => setForm({ ...form, rawIssueDescription: e.target.value })} /></label><label>Preferred date<input type="date" min={new Date().toISOString().slice(0, 10)} value={form.bookingDate} onChange={e => setForm({ ...form, bookingDate: e.target.value })} /></label><label>Preferred time<input type="time" value={form.scheduledTime} onChange={e => setForm({ ...form, scheduledTime: e.target.value })} /></label><Button>Send booking request →</Button></form></motion.div></div>; }
